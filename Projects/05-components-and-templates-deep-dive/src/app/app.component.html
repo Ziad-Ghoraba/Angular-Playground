@@ -1,0 +1,24 @@
+<header>
+  <div id="logo">
+    <img src="logo.png" alt="Website logo, a server" />
+  </div>
+
+  <app-header />
+
+</header>
+
+<main>
+  <div id="dashboard">
+    <app-dashboard-item [img]="{src: 'status.png', alt:'Server Status'}" [title]="'Server Status'">
+      <app-server-status [currentStatus]="currentStatus" />
+    </app-dashboard-item>
+
+    <app-dashboard-item [img]="{src: 'globe.png', alt:'Traffic'}" [title]="'Traffic'">
+      <app-traffic />
+    </app-dashboard-item>
+
+    <app-dashboard-item [img]="{src: 'list.png', alt:'Tickets'}" [title]="'Tickets'">
+      <app-tickets />
+    </app-dashboard-item>
+  </div>
+</main>
