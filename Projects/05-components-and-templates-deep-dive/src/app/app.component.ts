@@ -9,6 +9,7 @@ import { DashboardItemComponent } from "./dashboard/dashboard-item/dashboard-ite
   selector: 'app-root',
   standalone: true,
   templateUrl: './app.component.html',
+  styleUrl: './app.component.css',
   imports: [HeaderComponent, ServerStatusComponent, TrafficComponent, TicketsComponent, DashboardItemComponent],
 })
 export class AppComponent {
