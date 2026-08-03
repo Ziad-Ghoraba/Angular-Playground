@@ -13,6 +13,18 @@ import { DashboardItemComponent } from "./dashboard/dashboard-item/dashboard-ite
   imports: [HeaderComponent, ServerStatusComponent, TrafficComponent, TicketsComponent, DashboardItemComponent],
 })
 export class AppComponent {
-  currentStatus = 'online';
+  currentStatus: 'online' | 'offline' | 'maintenance' = 'online';
 
+  ngOnInit() {
+    setInterval(() => {
+      const rnd = Math.random(); // 0- 0.9999999999999999
+      if (rnd < 0.33) {
+        this.currentStatus = 'online';
+      } else if (rnd < 0.66) {
+        this.currentStatus = 'offline';
+      } else {
+        this.currentStatus = 'maintenance';
+      }
+    }, 5000);
+  }
 }
