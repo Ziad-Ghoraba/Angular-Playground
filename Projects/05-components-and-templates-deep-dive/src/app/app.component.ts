@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {HeaderComponent } from "./header/header.component";
 import { ServerStatusComponent } from "./dashboard/server-status/server-status.component";
 import { TrafficComponent } from "./dashboard/traffic/traffic.component";
@@ -12,7 +12,7 @@ import { DashboardItemComponent } from "./dashboard/dashboard-item/dashboard-ite
   styleUrl: './app.component.css',
   imports: [HeaderComponent, ServerStatusComponent, TrafficComponent, TicketsComponent, DashboardItemComponent],
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   currentStatus: 'online' | 'offline' | 'maintenance' = 'online';
 
   ngOnInit() {
