@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnDestroy, OnInit } from '@angular/core';
 import {HeaderComponent } from "./header/header.component";
 import { ServerStatusComponent } from "./dashboard/server-status/server-status.component";
 import { TrafficComponent } from "./dashboard/traffic/traffic.component";
@@ -14,9 +14,11 @@ import { DashboardItemComponent } from "./dashboard/dashboard-item/dashboard-ite
 })
 export class AppComponent implements OnInit {
   currentStatus: 'online' | 'offline' | 'maintenance' = 'online';
+  private destroyRef = inject(DestroyRef);
 
   ngOnInit() {
-    setInterval(() => {
+    const interval = setInterval(() => {
+      console.log('On Init');
       const rnd = Math.random(); // 0- 0.9999999999999999
       if (rnd < 0.33) {
         this.currentStatus = 'online';
@@ -26,5 +28,15 @@ export class AppComponent implements OnInit {
         this.currentStatus = 'maintenance';
       }
     }, 5000);
+
+    this.destroyRef.onDestroy(() => {
+      clearInterval(interval);
+    });
   }
+
+  // ngOnDestroy(){
+  //   if (this.interval) {
+  //     clearInterval(this.interval);
+  //   }
+  // }
 }
