@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, DestroyRef, effect, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import {HeaderComponent } from "./header/header.component";
 import { ServerStatusComponent } from "./dashboard/server-status/server-status.component";
 import { TrafficComponent } from "./dashboard/traffic/traffic.component";
@@ -13,19 +13,23 @@ import { DashboardItemComponent } from "./dashboard/dashboard-item/dashboard-ite
   imports: [HeaderComponent, ServerStatusComponent, TrafficComponent, TicketsComponent, DashboardItemComponent],
 })
 export class AppComponent implements OnInit {
-  currentStatus: 'online' | 'offline' | 'maintenance' = 'online';
+  currentStatus = signal<'online' | 'offline' | 'maintenance'>('online');
   private destroyRef = inject(DestroyRef);
 
+  constructor() {
+      effect(() => console.log('Effect', this.currentStatus()));
+  }
+
   ngOnInit() {
+    console.log('On Init');
     const interval = setInterval(() => {
-      console.log('On Init');
       const rnd = Math.random(); // 0- 0.9999999999999999
       if (rnd < 0.33) {
-        this.currentStatus = 'online';
+        this.currentStatus.set('online');
       } else if (rnd < 0.66) {
-        this.currentStatus = 'offline';
+        this.currentStatus.set('offline');
       } else {
-        this.currentStatus = 'maintenance';
+        this.currentStatus.set('maintenance');
       }
     }, 5000);
 
@@ -33,6 +37,8 @@ export class AppComponent implements OnInit {
       clearInterval(interval);
     });
   }
+
+
 
   // ngOnDestroy(){
   //   if (this.interval) {
