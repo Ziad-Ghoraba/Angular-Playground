@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostBinding, HostListener, inject, input, ViewEncapsulation } from '@angular/core';
+import { Component, contentChild, ElementRef, HostBinding, HostListener, inject, input, ViewEncapsulation } from '@angular/core';
 
 @Component({
   selector: 'app-control',
@@ -22,10 +22,13 @@ export class ControlComponent {
   label = input.required<string>();
   private el = inject(ElementRef);
 
+  private control = contentChild<ElementRef<HTMLInputElement|HTMLTextAreaElement>>('input');
+
 
   onClick() {
     console.log('Control clicked');
     const width = this.el.nativeElement.offsetWidth;
     console.log('Control width:', width);
+    console.log('Control label:', this.control());
   }
 }
