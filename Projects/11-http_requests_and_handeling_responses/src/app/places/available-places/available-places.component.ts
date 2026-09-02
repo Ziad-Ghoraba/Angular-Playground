@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 
 import { Place } from '../place.model';
 import { PlacesComponent } from '../places.component';
@@ -6,6 +6,7 @@ import { PlacesContainerComponent } from '../places-container/places-container.c
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/internal/operators/map';
 import { catchError, throwError } from 'rxjs';
+import { PlacesService } from '../places.service';
 
 @Component({
   selector: 'app-available-places',
@@ -18,15 +19,13 @@ export class AvailablePlacesComponent implements OnInit {
   places = signal<Place[] | undefined>(undefined);
   isFetching = signal<boolean>(false);
   error = signal<string>('');
-  private httpClient = inject(HttpClient);
+  private placesServices = inject(PlacesService)
+  private destroyRef = inject(DestroyRef);
+
 
   ngOnInit() {
     this.isFetching.set(true);
-    const subscription = this.httpClient
-      .get<{places: Place[]}>('http://localhost:3000/places')
-      .pipe(
-        map((responseData) => responseData.places), catchError((errorRes) => throwError(() => new Error('Failed to fetch places. Please try again later.')))
-      )
+    const subscription = this.placesServices.loadAvailablePlaces()
       .subscribe({
         next: (places) => {
           console.log(places);
@@ -41,5 +40,21 @@ export class AvailablePlacesComponent implements OnInit {
           console.error(err);
         }
       });
+
+      this.destroyRef.onDestroy(() => {
+        subscription.unsubscribe();
+      });
+  }
+
+  onSelectPlace(place: Place) {
+    console.log(place);
+    this.placesServices.addPlaceToUserPlaces(place).subscribe({
+      next: (response) => {
+        console.log('Place updated successfully:', response);
+      },
+      error: (err) => {
+        console.error('Error updating place:', err);
+      }
+    });
   }
 }
