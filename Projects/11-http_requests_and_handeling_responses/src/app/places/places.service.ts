@@ -6,6 +6,7 @@ import { throwError } from 'rxjs/internal/observable/throwError';
 import { catchError } from 'rxjs/internal/operators/catchError';
 import { map } from 'rxjs/internal/operators/map';
 import { tap } from 'rxjs/internal/operators/tap';
+import { ErrorService } from '../shared/shared/error.service';
 
 @Injectable({
   providedIn: 'root',
@@ -13,6 +14,7 @@ import { tap } from 'rxjs/internal/operators/tap';
 export class PlacesService {
   private userPlaces = signal<Place[]>([]);
   private httpClient = inject(HttpClient);
+  private errorService = inject(ErrorService);
 
 
   loadedUserPlaces = this.userPlaces.asReadonly();
@@ -32,19 +34,45 @@ export class PlacesService {
   }
 
   addPlaceToUserPlaces(place: Place) {
-    this.userPlaces.update((prevPlaces) => [...prevPlaces, place]);
+    const prevPlaces = this.userPlaces();
+    if (!prevPlaces.some((p) => p.id === place.id)) {
+      this.userPlaces.update((prevPlaces) => [...prevPlaces, place]);
+    }
     return this.httpClient.put(`http://localhost:3000/user-places`, {
       placeId: place.id,
-    });
+    }).pipe(
+      catchError((errorRes) => {
+        this.userPlaces.set(prevPlaces);
+        this.errorService.showError('Failed to add place to your favorite places. Please try again later.');
+        return throwError(
+        () => new Error('Failed to add place to your favorite places. Please try again later.'));
+      })
+    );
   }
 
-  removeUserPlace(place: Place) {}
+  removeUserPlace(place: Place) {
+    const prevPlaces = this.userPlaces();
+    if(prevPlaces.some((p) => p.id === place.id)) {
+      this.userPlaces.update((prevPlaces) => prevPlaces.filter((p) => p.id !== place.id));
+    }
+    return this.httpClient.delete(`http://localhost:3000/user-places/${place.id}`).pipe(
+      catchError((errorRes) => {
+        this.userPlaces.set(prevPlaces);
+        this.errorService.showError('Failed to remove place from your favorite places. Please try again later.');
+        return throwError(
+        () => new Error('Failed to remove place from your favorite places. Please try again later.'));
+      })
+    );
+  }
 
   private fetchPlaces(url: string, errorMessage: string) {
     return this.httpClient
         .get<{places: Place[]}>(url)
         .pipe(
-          map((responseData) => responseData.places), catchError((errorRes) => throwError(() => new Error(errorMessage)))
+          map((responseData) => responseData.places), catchError((errorRes) => {
+            this.errorService.showError(errorMessage);
+            return throwError(() => new Error(errorMessage));
+          })
         );
 
 
