@@ -178,7 +178,7 @@ hr {
   color: #f98b75;
 }
 
-input .ng-invalid.ng-touched.ng-dirty {
+input.ng-invalid.ng-touched.ng-dirty {
   border-color: #f84e2c;
   background-color: #fbde20;
 }

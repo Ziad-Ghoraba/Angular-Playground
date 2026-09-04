@@ -15,8 +15,12 @@
     <button class="button">Login</button>
 
   </div>
-  @if(email.invalid && email.touched)
+  @if(email.invalid && email.touched && email.dirty)
   {
-  <p class="control-error">Invalid form data.</p>
+  <p class="control-error">Invalid email address entered.</p>
+  }
+    @if(password.invalid && password.touched && password.dirty)
+  {
+  <p class="control-error">Invalid password entered.</p>
   }
 </form>
