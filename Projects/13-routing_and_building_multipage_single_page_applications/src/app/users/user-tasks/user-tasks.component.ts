@@ -1,6 +1,6 @@
-import { Component, computed, DestroyRef, inject, input, OnInit, signal } from '@angular/core';
+import { Component, inject, input, OnInit} from '@angular/core';
 import { UsersService } from '../users.service';
-import { ActivatedRoute, RouterLink, RouterOutlet } from '@angular/router';
+import { ActivatedRoute, ActivatedRouteSnapshot, ResolveFn, RouterLink, RouterOutlet, RouterStateSnapshot } from '@angular/router';
 
 @Component({
   selector: 'app-user-tasks',
@@ -9,31 +9,25 @@ import { ActivatedRoute, RouterLink, RouterOutlet } from '@angular/router';
   styleUrl: './user-tasks.component.css',
   imports: [RouterOutlet, RouterLink],
 })
-export class UserTasksComponent implements OnInit {
-  userId = input.required<string>();
-  private usersService = inject(UsersService);
-  private activatedRoute = inject(ActivatedRoute);
-  private destroyRef = inject(DestroyRef);
+export class UserTasksComponent  {
+  message = input.required<string>();
+  userName = input.required<string>();
+  // private activatedRoute = inject(ActivatedRoute);
+  // ngOnInit(): void {
+  //   this.activatedRoute.data.subscribe(({
+  //     next: (data) => {
+  //       console.log('UserTasksComponent data:', data);
+  //     }
+  //   }));
+  // }
+}
 
-  userName = signal<string>('');
+export const resolveUserName: ResolveFn<string> = (activatedRoute: ActivatedRouteSnapshot, routerState: RouterStateSnapshot) =>{
+  const usersService = inject(UsersService);
+  const userName = usersService.users.find((user) => user.id === activatedRoute.params['userId'])?.name;
+  return userName || '';
+};
 
-  // userName = computed(() => {
-  //   const user = this.usersService.users.find(
-  //     (user) => user.id === this.userId()
-  //   );
-  //   return user ? user.name : '';
-  // });
-
-  ngOnInit(): void {
-    const subscription = this.activatedRoute.params.subscribe({
-      next: (params) => this.usersService.users.find((user) => {
-        if (user.id === params['userId']) {
-          this.userName.set(user.name);
-        }
-      })
-    });
-    this.destroyRef.onDestroy(() => {
-      subscription.unsubscribe();
-    });
-  }
+export const resolveTitle : ResolveFn<string> = (activatedRoute: ActivatedRouteSnapshot, routerState: RouterStateSnapshot) =>{
+  return `${resolveUserName(activatedRoute, routerState)}'s Tasks`;
 }
